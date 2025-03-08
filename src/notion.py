@@ -2,12 +2,14 @@ import os
 from datetime import date, datetime
 from dateutils import relativedelta
 from notion_client import AsyncClient
-from typing import Dict
-
+from typing import Dict, List
+import logging
 
 class NotionClientWrapper:
 
     def __init__(self):
+        logging.basicConfig(level=logging.INFO)
+
         self.DATE_FORMAT = "%Y-%m-%d"
         self.__notion = AsyncClient(auth=os.getenv("NOTION_API_TOKEN"))
         self.__calendar_db_id = str(os.getenv("NOTION_CALENDAR_DB_ID"))
@@ -49,17 +51,27 @@ class NotionClientWrapper:
 
         timedelta_params: Dict = {unit: frequency}
         current_date: date = start_on_date
+        event_buffer: List[str] = []
         for _ in range(MAX_TASKS[unit]):
             if end_on_date and current_date > end_on_date:
                 break
+            
+            # if recurring event is trashed during generation, stop future
+            # generation and trash events that have already been generated
+            page = await self.__notion.pages.retrieve(recurring_event_id)
+            if page["in_trash"]:
+                logging.info(f"Recurring event (ID: {recurring_event_id}) was trashed")
+                await self.__delete_events(event_ids=event_buffer)
+                break
 
-            await self.__create_event(
+            recurring_event_instance = await self.__create_event(
                 title=title,
                 due_date=current_date,
                 type=type,
                 tag=tag,
                 recurring_event_id=recurring_event_id,
             )
+            event_buffer.append(recurring_event_instance["id"])
 
             current_date += relativedelta(**timedelta_params)
 
@@ -120,4 +132,8 @@ class NotionClientWrapper:
             }
         }
 
-        await self.__notion.pages.create(**payload)
+        return await self.__notion.pages.create(**payload)
+
+    async def __delete_events(self, event_ids: List[str]):
+        for id in event_ids:
+            await self.__notion.pages.update(id, in_trash=True)
