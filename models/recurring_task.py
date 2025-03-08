@@ -113,8 +113,6 @@ class Unit(BaseModel):
 
 class Properties(BaseModel):
     title: Title
-    Respondent: Respondent
-    Submission_time: SubmissionTime = Field(..., alias='Submission time')
     start_on: StartOn
     frequency: Frequency
     unit: Unit
