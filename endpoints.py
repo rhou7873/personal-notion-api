@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from models import RecurringTask
 
 app = FastAPI()
 
 @app.post("/recurring-task")
-async def test():
-    print("hit the test endpoint")
-    return {"message": "Hello World"}
+async def test(task: RecurringTask):
+    print(task.data.properties)
+    return { "success": True }
