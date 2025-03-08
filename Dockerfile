@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000
 
 # Run the application
-CMD ["fastapi", "run", "endpoints.py"]
+CMD ["fastapi", "run", "src/gateway.py"]
