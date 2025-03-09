@@ -6,8 +6,8 @@ from datetime import datetime
 app = FastAPI()
 client = NotionClientWrapper()
 
-@app.post("/recurring-task")
-async def test(task: RecurringEvent):
+@app.post("/recurring-event")
+async def recurring_event(task: RecurringEvent):
     properties = task.data.properties
     has_end_on = properties.end_on.date is not None
 
