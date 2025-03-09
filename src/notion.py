@@ -42,6 +42,9 @@ class NotionClientWrapper:
         end_on_date = datetime.strptime(
             end_on, self.DATE_FORMAT) if end_on else None
 
+        # add emoji to the recurring event page, just cuz 
+        await self.__notion.pages.update(recurring_event_id, icon={"emoji": "🔄"})
+
         MAX_TASKS = {
             "days": 365,
             "weeks": 52,
@@ -89,6 +92,9 @@ class NotionClientWrapper:
         payload = {
             "parent": {
                 "database_id": self.__calendar_db_id
+            },
+            "icon": {
+                "emoji": "🔄",
             },
             "properties": {
                 "Name": {
