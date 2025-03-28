@@ -29,3 +29,8 @@ async def recurring_event(task: RecurringEvent):
 async def my_day_notification():
     await client.notify_of_my_day()
     return {"success": True}
+
+
+@app.get("/test")
+async def test():
+    return {"success": True}
