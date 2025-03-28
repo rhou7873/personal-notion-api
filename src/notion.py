@@ -90,7 +90,7 @@ class NotionClientWrapper:
             current_date += relativedelta(**timedelta_params)
 
     async def notify_of_my_day(self):
-        # generate to do list string based on today's tasks in Notion database
+        # fetch today's tasks from Notion database
         params = {
             "database_id": self.__CALENDAR_DB_ID,
             "filter_properties": ["title"],
@@ -121,6 +121,11 @@ class NotionClientWrapper:
         todays_tasks = [task["properties"]["Name"]["title"][0]["plain_text"]
                         for task in query_response["results"]]
 
+        # if there's no pending tasks today, don't send notification
+        if len(todays_tasks) == 0:
+            return
+
+        # format tasks into bulleted list string
         todays_tasks_formatted = "\n"
         for task in todays_tasks:
             todays_tasks_formatted += f"\n\t- {task}"
