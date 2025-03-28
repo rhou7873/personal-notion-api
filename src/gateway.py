@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from models import RecurringEvent
 from notion import NotionClientWrapper
-from datetime import datetime
 
 app = FastAPI()
 client = NotionClientWrapper()
+
 
 @app.post("/recurring-event")
 async def recurring_event(task: RecurringEvent):
@@ -22,4 +22,10 @@ async def recurring_event(task: RecurringEvent):
         unit=properties.unit.multi_select[0].name
     )
 
-    return { "success": True }
+    return {"success": True}
+
+
+@app.get("/my_day_notification")
+async def my_day_notification():
+    await client.notify_of_my_day()
+    return {"success": True}
